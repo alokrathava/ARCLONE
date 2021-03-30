@@ -3,13 +3,14 @@ package com.razi.furnitar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,11 +24,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -122,9 +118,6 @@ public class MainActivity extends AppCompatActivity {
         NonARadapter = new RecyclerViewAdapter(options);
 
 
-
-
-
         initRecyclerView();
         aL = firebaseAuth -> {
             if (firebaseAuth.getCurrentUser() == null) {
@@ -145,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         clickListener();
     }
 
-    private void clickListener(){
+    private void clickListener() {
         adapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DocumentSnapshot documentSnapshot, int pos) {
@@ -171,10 +164,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void seacrhItem(View view) {
         adapter.stopListening();
-        if(!cancel){
+        if (!cancel) {
             searchQuery = searchbar.getText().toString();
             searchQuery = searchQuery.toLowerCase();
-            String s = searchQuery.substring(0,searchQuery.length() - 1);
+            String s = searchQuery.substring(0, searchQuery.length() - 1);
             char c = searchQuery.charAt(searchQuery.length() - 1);
             c++;
             s += c;
@@ -188,8 +181,7 @@ public class MainActivity extends AppCompatActivity {
             adapter = new RecyclerViewAdapter(options);
 
             searchButton.setBackgroundResource(R.drawable.ic_cancel_black_24dp);
-        }
-        else{
+        } else {
             searchbar.setText("");
             Query query = db.collection("items")
                     .whereGreaterThan("quantity", 0);
@@ -213,14 +205,13 @@ public class MainActivity extends AppCompatActivity {
         showAR = !showAR;
         adapter.stopListening();
         Query query;
-        if(showAR){
+        if (showAR) {
             query = db.collection("items").whereGreaterThan("quantity", 0);
             options = new FirestoreRecyclerOptions.Builder<Item>()
                     .setQuery(query, Item.class)
                     .build();
             adapter = new RecyclerViewAdapter(options);
-        }
-        else{
+        } else {
             query = db.collection("items")
                     .whereEqualTo("isAR", false)
                     .whereGreaterThan("quantity", 0);

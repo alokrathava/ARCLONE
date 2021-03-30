@@ -1,7 +1,7 @@
 package com.razi.furnitar;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,10 +71,10 @@ public class RecyclerViewAdapter extends FirestoreRecyclerAdapter<Item, Recycler
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            item_view_name = itemView.findViewById(R.id.item_view_name);
+            /*item_view_name = itemView.findViewById(R.id.item_view_name);
             item_view_price = itemView.findViewById(R.id.item_view_price);
             item_view_image = itemView.findViewById(R.id.item_view_image);
-            item_view_AR = itemView.findViewById(R.id.item_view_AR);
+            item_view_AR = itemView.findViewById(R.id.item_view_AR);*/
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

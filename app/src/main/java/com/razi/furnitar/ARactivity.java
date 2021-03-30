@@ -8,13 +8,16 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
+import com.google.ar.core.Config;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.sceneform.AnchorNode;
@@ -31,6 +34,9 @@ public class ARactivity extends AppCompatActivity {
     internetConnectivity it;
     private ModelRenderable modelRenderable;
     private ArFragment arFragment;
+
+//    public static final Config.PlaneFindingMode HORIZONTAL_AND_VERTICAL;
+
 
     protected void onDestroy() {
         unregisterReceiver(it);
@@ -73,6 +79,7 @@ public class ARactivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         GLTF_ASSET = intent.getStringExtra("asset");
+//        GLTF_ASSET = "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF/Duck.gltf";
 
         if (!checkIsSupportedDeviceOrFinish(this)) {
             finish();
@@ -89,7 +96,8 @@ public class ARactivity extends AppCompatActivity {
                 .setSource(this, RenderableSource.builder().setSource(
                         this,
                         Uri.parse(GLTF_ASSET),
-                        RenderableSource.SourceType.GLTF2)
+                        RenderableSource.SourceType.GLB
+                )
                         .setScale(0.8f)  // Scale the original model to 50%.
                         .setRecenterMode(RenderableSource.RecenterMode.ROOT)
                         .build())
@@ -128,4 +136,7 @@ public class ARactivity extends AppCompatActivity {
 
     }
 
+
 }
+
+

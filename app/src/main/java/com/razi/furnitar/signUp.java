@@ -1,111 +1,99 @@
 package com.razi.furnitar;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.network.Api;
+import com.network.AppConfig;
+import com.network.ServerResponse;
+import com.razi.furnitar.databinding.ActivitySignUpBinding;
+import com.utils.Config;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class signUp extends AppCompatActivity {
-    FirebaseAuth gAuth;
-    Button signUp, signin;
-    EditText user1, pass1;
-    internetConnectivity it;
 
-    protected void onDestroy() {
-        unregisterReceiver(it);
-        super.onDestroy();
-    }
+    private static final String TAG = "signUp";
+    private final Context context = this;
+    private ActivitySignUpBinding binding;
+    private String Email, Password, Name, Mobile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-        gAuth = FirebaseAuth.getInstance();
-        user1 = findViewById(R.id.username_2);
-        pass1 = findViewById(R.id.password_2);
-        signin = findViewById(R.id.signin_2);
-        signUp = findViewById(R.id.signup);
-        signin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(signUp.this, Login.class));
-            }
+        binding = ActivitySignUpBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+
+        binding.signupbtn.setOnClickListener(v -> {
+            doRegister();
         });
-        IntentFilter in = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
-        it = new internetConnectivity();
-        registerReceiver(it, in);
-        signUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String regExpn =
-                        "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@"
-                                + "((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
-                                + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
-                                + "([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
-                                + "[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
-                                + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$";
-
-                CharSequence inputStr = user1.getText().toString();
-
-                Pattern pattern = Pattern.compile(regExpn, Pattern.CASE_INSENSITIVE);
-                Matcher matcher = pattern.matcher(inputStr);
-
-                if (!matcher.matches()) {
-                    user1.setError("Invalid Email");
-                    return;
-                }
-
-
-                String pass = pass1.getText().toString();
-                if (TextUtils.isEmpty(pass) || pass.length() < 6) {
-                    pass1.setError("You must have at least 6 characters in your password");
-                    return;
-                }
-
-                createAccount(user1.getText().toString(), pass1.getText().toString());
-
-            }
-        });
+        binding.signinbtn.setOnClickListener(v -> startActivity(new Intent(context, Login.class)));
     }
 
-    public void createAccount(String email, String password) {
-        gAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.i("Succ", "createUserWithEmail:success");
-                            FirebaseAuth.getInstance().signOut();
-                            startActivity(new Intent(signUp.this, Login.class));
-                            //FirebaseUser user = gAuth.getCurrentUser();
-                            //updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w("warning", "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(signUp.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            // updateUI(null);
-                        }
+    private void doRegister() {
+        Name = binding.name.getText().toString();
+        Email = binding.email.getText().toString();
+        Password = binding.password.getText().toString();
+        Mobile = binding.mobile.getText().toString();
 
-                        // ...
+        if (TextUtils.isEmpty(Name) && TextUtils.isEmpty(Email) && TextUtils.isEmpty(Password) && TextUtils.isEmpty(Mobile)) {
+            binding.name.setError("All Fields are Required");
+            binding.email.setError("All Fields are Required");
+            binding.password.setError("All Fields are Required");
+            binding.mobile.setError("All Fields are Required");
+        } else {
+            ExecuteRegister(Name, Email, Password, Mobile);
+        }
+    }
+
+    private void ExecuteRegister(String name, String email, String password, String mobile) {
+        Log.e(TAG, "ExecuteRegister: " + name);
+        Log.e(TAG, "ExecuteRegister: " + email);
+        Log.e(TAG, "ExecuteRegister: " + password);
+        Log.e(TAG, "ExecuteRegister: " + mobile);
+
+        Retrofit retrofit = AppConfig.getRetrofit();
+        Api service = retrofit.create(Api.class);
+
+        Call<ServerResponse> call = service.register(name, email, password, mobile);
+        call.enqueue(new Callback<ServerResponse>() {
+            @Override
+            public void onResponse(Call<ServerResponse> call, Response<ServerResponse> response) {
+                if (response.body() != null) {
+                    ServerResponse serverResponse = response.body();
+                    if (!serverResponse.getError()) {
+                        Config.showToast(context, serverResponse.getMessage());
+                        MoveActivity();
+                    } else {
+                        Config.showToast(context, serverResponse.getMessage());
                     }
-                });
+                } else {
+                    Config.showToast(context, response.body().getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ServerResponse> call, Throwable t) {
+                Config.showToast(context, t.getMessage());
+            }
+        });
     }
+
+    private void MoveActivity() {
+        startActivity(new Intent(context, Login.class));
+    }
+
 
 }

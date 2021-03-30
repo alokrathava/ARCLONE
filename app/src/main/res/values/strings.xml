@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FurnitAR</string>
+    <string name="app_name">Vogue My Space</string>
     <string name="Description">Buy all variants of Furnitures online- with an Augmented Reality ; AR View of it in your place.</string>
     <string name="title_activity_cart_try">cart_try</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -12,4 +12,18 @@
     <string name="products">Products</string>
     <string name="show_cart">Show Cart</string>
     <string name="log_out">Log Out</string>
+
+
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+
+
+    <string-array name="qty">
+
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+
+    </string-array>
 </resources>
